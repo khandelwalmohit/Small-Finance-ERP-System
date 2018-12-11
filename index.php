@@ -17,7 +17,7 @@ if (isset($_POST['username'])){
         if($count==1){
 			$_SESSION['username'] = $username;
             $_SESSION['id']= $rows['id'];
-			header("Location: accounts.php");
+			header("Location: accounts");
             }
 }
 ?>

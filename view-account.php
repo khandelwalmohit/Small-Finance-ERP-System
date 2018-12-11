@@ -6,13 +6,17 @@ exit(); }
 require('db.php');
 $id= $_SESSION['id'];
 
-$query = "SELECT name FROM `user_detail`  WHERE id='$id'";
+$acc_no= $_GET['viewaccbtn'];
+
+$query = "SELECT * FROM `user_detail`  WHERE id='$id'";
 $result= mysqli_query($con, $query);
 $rows= mysqli_fetch_array($result, MYSQLI_ASSOC);
 
-$acc_sql= "SELECT * FROM account_detail where id='$id'";
-$acc_result= mysqli_query($con, $acc_sql);
-
+$txn_db_sql= "SELECT txn_id,time,from_acc,to_acc,amount FROM transactions WHERE from_acc='$acc_no' ORDER BY time DESC";
+$txn_db_result=mysqli_query($con, $txn_db_sql);
+    
+$txn_cr_sql= "SELECT txn_id,time,from_acc,to_acc,amount FROM transactions WHERE to_acc='$acc_no' ORDER BY time DESC";
+$txn_cr_result=mysqli_query($con, $txn_cr_sql);
 ?>
 
 <!DOCTYPE html>
@@ -124,23 +128,11 @@ $acc_result= mysqli_query($con, $acc_sql);
               <i class="ni ni-pin-3 text-orange"></i> Settings
             </a>
           </li>
-        <li class="nav-item">
-            <a class="nav-link" href="loan-form">
-              <i class="ni ni-pin-3 text-orange"></i> Loan Form
-            </a>
-          </li>
         </ul>
         <!-- Divider -->
         <hr class="my-3">
         <!-- Heading -->
         <h6 class="navbar-heading text-muted">Support</h6>
-          <div class="nav-item" id="chatlink">Chat with Support</div>
-          <div class="chatbot nav-item" id="chat"><div id="output"></div>
-      
-<div id="container">
-    <input type="text" id="input" value="">
-</div>
-          </div>
         <!-- Navigation -->
       </div>
     </div>
@@ -195,184 +187,214 @@ $acc_result= mysqli_query($con, $acc_sql);
       </div>
     </nav>
     <!-- Header -->
-    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
-      <div class="container-fluid">
+    <div class="header pb-8 pt-5 pt-lg-8 d-flex align-items-center" style="min-height: 600px; background-image: url(../assets/img/theme/profile-cover.jpg); background-size: cover; background-position: center top;">
+      <!-- Mask -->
+      <span class="mask bg-gradient-default opacity-8"></span>
+      <!-- Header container -->
+      <div class="container-fluid d-flex align-items-center">
+        <div class="row">
+          <div class="col-lg-10 col-md-10">
+            <h1 class="display-1 text-white">Hello <?php echo $rows['name']?></h1>
+            <p class="text-white mt-0 mb-5">This is your profile page. You can view your details and update them.</p>
+          <!--  <form method="get" action="profile" name="edit-from"> -->
+              <div>
+                  <button class="btn btn-info" id="edit">Edit Profile</button>
+                  <button class="btn btn-danger" id="cancel" style="display:none">Cancel</button>
+              </div>
+          </div>
+        </div>
       </div>
-      </div>
+    </div>
     <!-- Page content -->
- <div class="container-fluid mt--7">
-      <!-- Table -->
+    <div class="container-fluid mt--7">
       <div class="row">
+        <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
+          <div class="card card-profile shadow">
+            <div class="row justify-content-center">
+              <div class="col-lg-3 order-lg-2">
+                <div class="card-profile-image">
+                  <a href="#">
+                    <img src="../assets/img/theme/team-4-800x800.jpg" class="rounded-circle">
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
+              <div class="d-flex justify-content-between">
+                <a href="#" class="btn btn-sm btn-info mr-4">Connect</a>
+                <a href="#" class="btn btn-sm btn-default float-right">Message</a>
+              </div>
+            </div>
+            <div class="card-body pt-0 pt-md-4">
+              <div class="row">
+                <div class="col">
+                  <div class="card-profile-stats d-flex justify-content-center mt-md-5">
+                    <div>
+                      <span class="heading">22</span>
+                      <span class="description">Friends</span>
+                    </div>
+                    <div>
+                      <span class="heading">10</span>
+                      <span class="description">Photos</span>
+                    </div>
+                    <div>
+                      <span class="heading">89</span>
+                      <span class="description">Comments</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center">
+                <h3>
+                  Jessica Jones<span class="font-weight-light">, 27</span>
+                </h3>
+                <div class="h5 font-weight-300">
+                  <i class="ni location_pin mr-2"></i>Bucharest, Romania
+                </div>
+                <div class="h5 mt-4">
+                  <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
+                </div>
+                <div>
+                  <i class="ni education_hat mr-2"></i>University of Computer Science
+                </div>
+                <hr class="my-4" />
+                <p>Ryan — the name taken by Melbourne-raised, Brooklyn-based Nick Murphy — writes, performs and records all of his own music.</p>
+                <a href="#">Show more</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-8 order-xl-1">
+          <div class="card bg-secondary shadow">
+              <form method="post" action="profile">
+          <div class="row">
         <div class="col">
           <div class="card shadow">
             <div class="card-header border-0">
-              <h3 class="mb-0">Your Accounts</h3>
+              <h3 class="mb-0">Your Transactions</h3>
             </div>
-            <form action="view-account" method="get">
             <div class="table-responsive">
               <table class="table align-items-center table-flush">
                   <thead style="border: none;" class="text-black"><tr>
-                    <th style="font-size: .8rem">Savings Account</th><th></th><th></th><th></th><th></th><th></th>
+                    <th style="font-size: .8rem">Credit</th><th></th><th></th><th></th><th></th><th></th>
                     </tr>
                     </thead>
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Balance</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Last Transaction Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"></th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                 <?php 
-                    mysqli_data_seek($acc_result, 0);
-                    while($acc_row = mysqli_fetch_assoc($acc_result)){
-                            if($acc_row['type']=="Savings")
-                            {
+                    mysqli_data_seek($txn_cr_result, 0);
+                    while($txn_cr_rows = mysqli_fetch_assoc($txn_cr_result)){
                 ?>
                   <tr>
                     <th scope="row">
                       <div class="media align-items-center">
                         <div class="media-body">
-                            <span class="mb-0 text-sm"><button class="btn-transparent" id="viewaccbtn" name="viewaccbtn" type="submit" value="<?php echo $acc_row['acc_no']?>"><?php echo $acc_row['acc_no']?></button></span>
+                          <span class="mb-0 text-sm"><?php echo $txn_cr_rows['txn_id']?></span>
                         </div>
                       </div>
                     </th>
                     <td>
-                      <?php echo $acc_row['balance']?>
+                      <?php echo $txn_cr_rows['time']?>
                     </td>
                     <td>
-                        <?php echo $acc_row['type']?>
+                        <?php echo $txn_cr_rows['from_acc']?>
                     </td>
                     <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mb-0 text-sm"><?php 
-                    $accno=$acc_row['acc_no'];
-                    $latest_transaction_sql="SELECT time, to_acc, from_acc FROM `transactions` WHERE $accno IN (to_acc, from_acc) ORDER BY time DESC";
-                            $latest_result= mysqli_query($con, $latest_transaction_sql);
-                                $latest_row = mysqli_fetch_assoc($latest_result);
-                            echo $latest_row['time'];
-                            ?></span>
-                      </div>
+                        <?php echo $txn_cr_rows['to_acc']?>
+                    </td>
+                    <td>
+                        <?php echo $txn_cr_rows['amount']?>
+
                     </td>
                     <td class="text-right">
-                        <span class="mb-0 text-sm">Active</span>
+                      <div class="dropdown">
+                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                      </div>
                     </td>
                   </tr>
-                <?php }}?>
+                <?php }?>
                     <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                 </tbody>
                   
                 <thead style="border: none;" class="text-black"><tr>
-                    <th style="font-size: .8rem">Current Account</th><th></th><th></th><th></th><th></th><th></th>
+                    <th style="font-size: .8rem">Debit</th><th></th><th></th><th></th><th></th><th></th>
                     </tr>
                     </thead>
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Balance</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Last Transaction Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"></th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Amount</th>
                   </tr>
                 </thead>
                   <tbody>
-                      <?php 
-                    mysqli_data_seek($acc_result, 0);
-                    while($acc_row = mysqli_fetch_assoc($acc_result)){
-                            if($acc_row['type']=="Current")
-                            {
+                <?php 
+                    mysqli_data_seek($txn_db_result, 0);
+                    while($txn_db_rows = mysqli_fetch_assoc($txn_db_result)){
                 ?>
                   <tr>
                     <th scope="row">
                       <div class="media align-items-center">
                         <div class="media-body">
-                        <span class="mb-0 text-sm"><button class="btn-transparent" id="viewaccbtn" name="viewaccbtn" type="submit" value="<?php echo $acc_row['acc_no']?>"><?php echo $acc_row['acc_no']?></button></span>
-                          </div>
+                          <span class="mb-0 text-sm"><?php echo $txn_db_rows['txn_id']?></span>
+                        </div>
                       </div>
                     </th>
                     <td>
-                      <?php echo $acc_row['balance']?>
+                      <?php echo $txn_db_rows['time']?>
                     </td>
                     <td>
-                        <?php echo $acc_row['type']?>
+                        <?php echo $txn_db_rows['from_acc']?>
                     </td>
                     <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mb-0 text-sm"><?php 
-                    $accno=$acc_row['acc_no'];
-                    $latest_transaction_sql="SELECT time, to_acc, from_acc FROM `transactions` WHERE $accno IN (to_acc, from_acc) ORDER BY time DESC";
-                            $latest_result= mysqli_query($con, $latest_transaction_sql);
-                                $latest_row = mysqli_fetch_assoc($latest_result);
-                            echo $latest_row['time'];
-                            ?></span>
-                      </div>
+                        <?php echo $txn_db_rows['to_acc']?>
                     </td>
-                  </tr>
-                <?php }}?>
-                        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>                  
-                  </tbody>
-                  <thead style="border: none;" class="text-black"><tr>
-                    <th style="font-size: .8rem">Loan Account</th><th></th><th></th><th></th><th></th><th></th>
-                    </tr>
-                    </thead>
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Balance</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Last Transaction Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                  <tbody>
-                      <?php 
-                    mysqli_data_seek($acc_result, 0);
-                    while($acc_row = mysqli_fetch_assoc($acc_result)){
-                            if($acc_row['type']=="Loan")
-                            {
-                ?>
-                  <tr>
-                    <th scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="../assets/img/theme/bootstrap.jpg">
+                    <td>
+                        <?php echo $txn_db_rows['amount']?>
+
+                    </td>
+                    <td class="text-right">
+                      <div class="dropdown">
+                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
                         </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm"><button class="btn-transparent" id="viewaccbtn" name="viewaccbtn" type="submit" value="<?php echo $acc_row['acc_no']?>"><?php echo $acc_row['acc_no']?></button></span>
-                        </div>
-                      </div>
-                    </th>
-                    <td>
-                      <?php echo $acc_row['balance']?>
-                    </td>
-                    <td>
-                        <?php echo $acc_row['type']?>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">60%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
-                          </div>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a>
                         </div>
                       </div>
                     </td>
                   </tr>
-                <?php }}?>
-                        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                  </tbody>
+                <?php }?>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                </tbody>
               </table>
             </div>
-              </form>
           </div>
         </div>
       </div>
+              </form>
+        </div>
+      </div>
+        </div>
       <!-- Footer -->
       <footer class="footer">
         <div class="row align-items-center justify-content-xl-between">
@@ -403,60 +425,14 @@ $acc_result= mysqli_query($con, $acc_sql);
     </div>
   <!-- Argon Scripts -->
   <!-- Core -->
-  <script src="./assets/vendor/jquery/dist/jquery.min.js"></script>
+<script src="./assets/vendor/jquery/dist/jquery.min.js"></script>
   <script src="./assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Optional JS -->
   <script src="./assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="./assets/vendor/chart.js/dist/Chart.extension.js"></script>
-    <script src="https://code.jquery.com/jquery-3.0.0.js" integrity="sha256-jrPLZ+8vDxt2FnE1zvZXCkCcebI/C8Dt5xyaQBjxQIo=" crossorigin="anonymous"></script>
   <!-- Argon JS -->
   <script src="./assets/js/argon.js?v=1.0.0"></script>
-<script>
-$('#chatlink').click(function(){
-                    $("#chat").show();
-                    }); 
-$(".main-content").click(function(){
-                    $("#chat").hide();});
-</script>
-<script>
-var questionNum = 0;													// keep count of question, used for IF condition.
-var question = '<h1>How May I help you</h1>';				  // first question
 
-var output = document.getElementById('output');				// store id="output" in output variable
-output.innerHTML = question;													// ouput first question
-
-function bot() { 
-    var input = document.getElementById("input").value;
-    console.log(input);
-
-    if (questionNum == 0) {
-    output.innerHTML = '<h1>hello ' + input + '</h1>';// output response
-    document.getElementById("input").value = "";   		// clear text box
-    question = '<h1>how old are you?</h1>';			    	// load next question		
-    setTimeout(timedQuestion, 2000);									// output next question after 2sec delay
-    }
-
-    else if (questionNum == 1) {
-    output.innerHTML = '<h1>That means you were born in ' + (2016 - input) + '</h1>';
-    document.getElementById("input").value = "";   
-    question = '<h1>where are you from?</h1>';					      	
-    setTimeout(timedQuestion, 2000);
-    }   
-}
-
-function timedQuestion() {
-    output.innerHTML = question;
-}
-
-//push enter key (using jquery), to run bot function.
-$(document).keypress(function(e) {
-  if (e.which == 13) {
-    bot();																// run bot function when enter key pressed
-    questionNum++;															// increase questionNum count by 1
-  }
-});
-    
-</script>
 </body>
 
 </html>

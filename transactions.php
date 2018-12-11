@@ -13,6 +13,14 @@ $rows= mysqli_fetch_array($result, MYSQLI_ASSOC);
 $acc_sql= "SELECT * FROM account_detail where id='$id'";
 $acc_result= mysqli_query($con, $acc_sql);
 
+if(isset($_GET['acc-btn'])){
+    $acc_no=$_GET['acc-btn'];
+$txn_db_sql= "SELECT txn_id,time,from_acc,to_acc,amount FROM transactions WHERE from_acc='$acc_no' ORDER BY time DESC";
+$txn_db_result=mysqli_query($con, $txn_db_sql);
+    
+$txn_cr_sql= "SELECT txn_id,time,from_acc,to_acc,amount FROM transactions WHERE to_acc='$acc_no' ORDER BY time DESC";
+$txn_cr_result=mysqli_query($con, $txn_cr_sql);
+}
 ?>
 
 <!DOCTYPE html>
@@ -124,23 +132,11 @@ $acc_result= mysqli_query($con, $acc_sql);
               <i class="ni ni-pin-3 text-orange"></i> Settings
             </a>
           </li>
-        <li class="nav-item">
-            <a class="nav-link" href="loan-form">
-              <i class="ni ni-pin-3 text-orange"></i> Loan Form
-            </a>
-          </li>
         </ul>
         <!-- Divider -->
         <hr class="my-3">
         <!-- Heading -->
         <h6 class="navbar-heading text-muted">Support</h6>
-          <div class="nav-item" id="chatlink">Chat with Support</div>
-          <div class="chatbot nav-item" id="chat"><div id="output"></div>
-      
-<div id="container">
-    <input type="text" id="input" value="">
-</div>
-          </div>
         <!-- Navigation -->
       </div>
     </div>
@@ -197,182 +193,188 @@ $acc_result= mysqli_query($con, $acc_sql);
     <!-- Header -->
     <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
       <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row">
+            <div class="col-xl-5 col-lg-6">
+              <div class="card card-stats mb-4 mb-xl-0">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">ACCOUNT NUMBER</h5>
+                      <span class="h2 font-weight-bold mb-0">
+                          <?php if(isset($_POST['acc-btn'])){
+                    echo $_POST['acc-btn'];}?></span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                      </div>
+                    </div>
+                  </div>
+                    <form action="transactions" method="get" id="acc-form">
+                    <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <div class="media align-items-center">
+                <div class="media-body ml-0 d-none d-lg-block">
+                  <span class="mb-0 text-sm  font-weight-bold">Select your Account Number
+                   <i class="fas fa-caret-down text-green"></i>
+                    </span>
+                </div>
+              </div>
+            </a>
+            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
+              <div class=" dropdown-header noti-title">
+                <h6 class="text-overflow m-0">Welcome</h6>
+              </div>
+                 <?php while($acc_row = mysqli_fetch_assoc($acc_result)) { ?>
+            <button class="dropdown-item" name="acc-btn" type="submit" value="<?php echo $acc_row['acc_no'];?>">    
+              <!-- <a role="menuitem" href="#" class="dropdown-item"> -->
+                <i class="ni ni-single-02"></i>
+                <span><?php echo $acc_row['acc_no']; ?></span>
+                </button>
+                <?php }?>
+            </div>
+          </li>
+                    </ul>
+                    </form>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
       </div>
       </div>
     <!-- Page content -->
+           <?php if(isset($_GET['acc-btn'])){
+?>
  <div class="container-fluid mt--7">
       <!-- Table -->
       <div class="row">
         <div class="col">
           <div class="card shadow">
             <div class="card-header border-0">
-              <h3 class="mb-0">Your Accounts</h3>
+              <h3 class="mb-0">Your Transactions</h3>
             </div>
-            <form action="view-account" method="get">
             <div class="table-responsive">
               <table class="table align-items-center table-flush">
                   <thead style="border: none;" class="text-black"><tr>
-                    <th style="font-size: .8rem">Savings Account</th><th></th><th></th><th></th><th></th><th></th>
+                    <th style="font-size: .8rem">Credit</th><th></th><th></th><th></th><th></th><th></th>
                     </tr>
                     </thead>
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Balance</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Last Transaction Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"></th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                 <?php 
-                    mysqli_data_seek($acc_result, 0);
-                    while($acc_row = mysqli_fetch_assoc($acc_result)){
-                            if($acc_row['type']=="Savings")
-                            {
+                    mysqli_data_seek($txn_cr_result, 0);
+                    while($txn_cr_rows = mysqli_fetch_assoc($txn_cr_result)){
                 ?>
                   <tr>
                     <th scope="row">
                       <div class="media align-items-center">
                         <div class="media-body">
-                            <span class="mb-0 text-sm"><button class="btn-transparent" id="viewaccbtn" name="viewaccbtn" type="submit" value="<?php echo $acc_row['acc_no']?>"><?php echo $acc_row['acc_no']?></button></span>
+                          <span class="mb-0 text-sm"><?php echo $txn_cr_rows['txn_id']?></span>
                         </div>
                       </div>
                     </th>
                     <td>
-                      <?php echo $acc_row['balance']?>
+                      <?php echo $txn_cr_rows['time']?>
                     </td>
                     <td>
-                        <?php echo $acc_row['type']?>
+                        <?php echo $txn_cr_rows['from_acc']?>
                     </td>
                     <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mb-0 text-sm"><?php 
-                    $accno=$acc_row['acc_no'];
-                    $latest_transaction_sql="SELECT time, to_acc, from_acc FROM `transactions` WHERE $accno IN (to_acc, from_acc) ORDER BY time DESC";
-                            $latest_result= mysqli_query($con, $latest_transaction_sql);
-                                $latest_row = mysqli_fetch_assoc($latest_result);
-                            echo $latest_row['time'];
-                            ?></span>
-                      </div>
+                        <?php echo $txn_cr_rows['to_acc']?>
+                    </td>
+                    <td>
+                        <?php echo $txn_cr_rows['amount']?>
+
                     </td>
                     <td class="text-right">
-                        <span class="mb-0 text-sm">Active</span>
+                      <div class="dropdown">
+                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                      </div>
                     </td>
                   </tr>
-                <?php }}?>
+                <?php }?>
                     <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                 </tbody>
                   
                 <thead style="border: none;" class="text-black"><tr>
-                    <th style="font-size: .8rem">Current Account</th><th></th><th></th><th></th><th></th><th></th>
+                    <th style="font-size: .8rem">Debit</th><th></th><th></th><th></th><th></th><th></th>
                     </tr>
                     </thead>
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Balance</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Last Transaction Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"></th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">From</th>
+                    <th scope="col">To</th>
+                    <th scope="col">Amount</th>
                   </tr>
                 </thead>
                   <tbody>
-                      <?php 
-                    mysqli_data_seek($acc_result, 0);
-                    while($acc_row = mysqli_fetch_assoc($acc_result)){
-                            if($acc_row['type']=="Current")
-                            {
+                <?php 
+                    mysqli_data_seek($txn_db_result, 0);
+                    while($txn_db_rows = mysqli_fetch_assoc($txn_db_result)){
                 ?>
                   <tr>
                     <th scope="row">
                       <div class="media align-items-center">
                         <div class="media-body">
-                        <span class="mb-0 text-sm"><button class="btn-transparent" id="viewaccbtn" name="viewaccbtn" type="submit" value="<?php echo $acc_row['acc_no']?>"><?php echo $acc_row['acc_no']?></button></span>
-                          </div>
+                          <span class="mb-0 text-sm"><?php echo $txn_db_rows['txn_id']?></span>
+                        </div>
                       </div>
                     </th>
                     <td>
-                      <?php echo $acc_row['balance']?>
+                      <?php echo $txn_db_rows['time']?>
                     </td>
                     <td>
-                        <?php echo $acc_row['type']?>
+                        <?php echo $txn_db_rows['from_acc']?>
                     </td>
                     <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mb-0 text-sm"><?php 
-                    $accno=$acc_row['acc_no'];
-                    $latest_transaction_sql="SELECT time, to_acc, from_acc FROM `transactions` WHERE $accno IN (to_acc, from_acc) ORDER BY time DESC";
-                            $latest_result= mysqli_query($con, $latest_transaction_sql);
-                                $latest_row = mysqli_fetch_assoc($latest_result);
-                            echo $latest_row['time'];
-                            ?></span>
-                      </div>
+                        <?php echo $txn_db_rows['to_acc']?>
                     </td>
-                  </tr>
-                <?php }}?>
-                        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>                  
-                  </tbody>
-                  <thead style="border: none;" class="text-black"><tr>
-                    <th style="font-size: .8rem">Loan Account</th><th></th><th></th><th></th><th></th><th></th>
-                    </tr>
-                    </thead>
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Balance</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Last Transaction Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                  <tbody>
-                      <?php 
-                    mysqli_data_seek($acc_result, 0);
-                    while($acc_row = mysqli_fetch_assoc($acc_result)){
-                            if($acc_row['type']=="Loan")
-                            {
-                ?>
-                  <tr>
-                    <th scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="../assets/img/theme/bootstrap.jpg">
+                    <td>
+                        <?php echo $txn_db_rows['amount']?>
+
+                    </td>
+                    <td class="text-right">
+                      <div class="dropdown">
+                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
                         </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm"><button class="btn-transparent" id="viewaccbtn" name="viewaccbtn" type="submit" value="<?php echo $acc_row['acc_no']?>"><?php echo $acc_row['acc_no']?></button></span>
-                        </div>
-                      </div>
-                    </th>
-                    <td>
-                      <?php echo $acc_row['balance']?>
-                    </td>
-                    <td>
-                        <?php echo $acc_row['type']?>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">60%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
-                          </div>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a>
                         </div>
                       </div>
                     </td>
                   </tr>
-                <?php }}?>
-                        <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                  </tbody>
+                <?php }?>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                </tbody>
               </table>
             </div>
-              </form>
           </div>
         </div>
       </div>
+     <?php }?>
       <!-- Footer -->
       <footer class="footer">
         <div class="row align-items-center justify-content-xl-between">
@@ -400,7 +402,8 @@ $acc_result= mysqli_query($con, $acc_sql);
         </div>
       </footer>
     </div>
-    </div>
+           </div>
+
   <!-- Argon Scripts -->
   <!-- Core -->
   <script src="./assets/vendor/jquery/dist/jquery.min.js"></script>
@@ -408,55 +411,8 @@ $acc_result= mysqli_query($con, $acc_sql);
   <!-- Optional JS -->
   <script src="./assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="./assets/vendor/chart.js/dist/Chart.extension.js"></script>
-    <script src="https://code.jquery.com/jquery-3.0.0.js" integrity="sha256-jrPLZ+8vDxt2FnE1zvZXCkCcebI/C8Dt5xyaQBjxQIo=" crossorigin="anonymous"></script>
   <!-- Argon JS -->
   <script src="./assets/js/argon.js?v=1.0.0"></script>
-<script>
-$('#chatlink').click(function(){
-                    $("#chat").show();
-                    }); 
-$(".main-content").click(function(){
-                    $("#chat").hide();});
-</script>
-<script>
-var questionNum = 0;													// keep count of question, used for IF condition.
-var question = '<h1>How May I help you</h1>';				  // first question
-
-var output = document.getElementById('output');				// store id="output" in output variable
-output.innerHTML = question;													// ouput first question
-
-function bot() { 
-    var input = document.getElementById("input").value;
-    console.log(input);
-
-    if (questionNum == 0) {
-    output.innerHTML = '<h1>hello ' + input + '</h1>';// output response
-    document.getElementById("input").value = "";   		// clear text box
-    question = '<h1>how old are you?</h1>';			    	// load next question		
-    setTimeout(timedQuestion, 2000);									// output next question after 2sec delay
-    }
-
-    else if (questionNum == 1) {
-    output.innerHTML = '<h1>That means you were born in ' + (2016 - input) + '</h1>';
-    document.getElementById("input").value = "";   
-    question = '<h1>where are you from?</h1>';					      	
-    setTimeout(timedQuestion, 2000);
-    }   
-}
-
-function timedQuestion() {
-    output.innerHTML = question;
-}
-
-//push enter key (using jquery), to run bot function.
-$(document).keypress(function(e) {
-  if (e.which == 13) {
-    bot();																// run bot function when enter key pressed
-    questionNum++;															// increase questionNum count by 1
-  }
-});
-    
-</script>
 </body>
 
 </html>

@@ -13,74 +13,29 @@ $rows= mysqli_fetch_array($result, MYSQLI_ASSOC);
 $acc_sql= "SELECT acc_no FROM account_detail where id='$id'";
 $acc_result= mysqli_query($con, $acc_sql);
 
-if(isset($_POST['btn-tba'])){
-    $df_acc=$_POST['df-tba'];
-    $ct_acc=$_POST['ct-tba'];
-    $amnt_tr=$_POST['amount-tba'];
+if(isset($_POST['btn-vehicle'])){
+    $fn=$_POST['fn-vehicle'];
+    $ln=$_POST['ln-vehicle'];
+    $email=$_POST['email-vehicle'];
+    $mn=$_POST['mn-vehicle'];
+    $type=$_POST['type-vehicle'];
     
-    if($_POST['btn-tba']==1){
-    $ct_sql= "SELECT balance from account_detail WHERE acc_no='$ct_acc'";
-    $ct_result= mysqli_query($con, $ct_sql);
-    $ct_rows= mysqli_fetch_array($ct_result, MYSQLI_ASSOC);
-    
-    $df_sql= "SELECT balance from account_detail WHERE acc_no='$df_acc'";
-    $df_result= mysqli_query($con, $df_sql);
-    $df_rows= mysqli_fetch_array($df_result, MYSQLI_ASSOC);
-    
-    $df_amnt=$df_rows['balance'];
-    $df_amnt_new= $df_amnt-$amnt_tr;
-    
-    $ct_amnt=$ct_rows['balance'];
-    $ct_amnt_new= $ct_amnt+$amnt_tr;
-    
-    $df_update_sql= "UPDATE `account_detail` SET `balance` = '$df_amnt_new' WHERE `account_detail`.`acc_no` = '$df_acc'";
-    mysqli_query($con,  $df_update_sql);
-    
-     $ct_update_sql= "UPDATE `account_detail` SET `balance` = '$ct_amnt_new' WHERE `account_detail`.`acc_no` = '$ct_acc'";
-    mysqli_query($con,  $ct_update_sql);
-    
-    $txn_sql= "INSERT INTO `transactions` (`txn_id`, `time`, `from_acc`, `to_acc`, `from_prev_balance`, `to_prev_balance`, `amount`, `method`) VALUES ('', CURRENT_TIMESTAMP, '$df_acc', '$ct_acc', '$df_amnt', '$ct_amnt', '$amnt_tr', 'TBA')";
-    $txn_result=mysqli_query($con, $txn_sql);}
-    echo "<script>alert('Transaction successful'); location.href='transfer';</script>";
+    $insert_sql=" INSERT INTO `loan_application` (`account_holder_id`, `fname`, `lname`, `email`, `mobile_no`, `type`) VALUES ('$id', '$fn', '$ln', '$email', '$mn', '$type')";
+    mysqli_query($con, $insert_sql);
+    echo "<script>alert('Application Received'); location.href='transfer';</script>";
 }
 
-if(isset($_POST['btn-tbu'])){
-    $df_acc=$_POST['df-tbu'];
-    $ct_acc=$_POST['ct-tbu'];
-    $amnt_tr=$_POST['amount-tbu'];
+if(isset($_POST['btn-home'])){
+    $fn=$_POST['fn-home'];
+    $ln=$_POST['ln-home'];
+    $email=$_POST['email-home'];
+    $mn=$_POST['mn-home'];
     
-    $check_sql="SELECT CAST(COUNT(*) AS BINARY) FROM account_detail WHERE (acc_no = '$ct_acc')";
-    $check_result= mysqli_query($con, $check_sql);
-    $check_rows= mysqli_fetch_array($check_result, MYSQLI_ASSOC);
-    
-    if($check_rows['CAST(COUNT(*) AS BINARY)']=='0'){
-    echo "<script>alert('Account Number Not Found, Please try again!'); location.href='transfer';</script>";
+    $insert_sql=" INSERT INTO `loan_application` (`account_holder_id`, `fname`, `lname`, `email`, `mobile_no`, `type`) VALUES ('$id', '$fn', '$ln', '$email', '$mn', 'Home Loan')";
+    mysqli_query($con, $insert_sql);
+    echo "<script>alert('Application Received'); location.href='transfer';</script>";
     }
-    else{
-    $ct_sql= "SELECT balance from account_detail WHERE acc_no='$ct_acc'";
-    $ct_result= mysqli_query($con, $ct_sql);
-    $ct_rows= mysqli_fetch_array($ct_result, MYSQLI_ASSOC);
-    
-    $df_sql= "SELECT balance from account_detail WHERE acc_no='$df_acc'";
-    $df_result= mysqli_query($con, $df_sql);
-    $df_rows= mysqli_fetch_array($df_result, MYSQLI_ASSOC);
-    
-    $df_amnt=$df_rows['balance'];
-    $df_amnt_new= $df_amnt-$amnt_tr;
-    
-    $ct_amnt=$ct_rows['balance'];
-    $ct_amnt_new= $ct_amnt+$amnt_tr;
-    
-    $df_update_sql= "UPDATE `account_detail` SET `balance` = '$df_amnt_new' WHERE `account_detail`.`acc_no` = '$df_acc'";
-    mysqli_query($con,  $df_update_sql);
-    
-     $ct_update_sql= "UPDATE `account_detail` SET `balance` = '$ct_amnt_new' WHERE `account_detail`.`acc_no` = '$ct_acc'";
-    mysqli_query($con,  $ct_update_sql);
-        
-    $txn_sql= "INSERT INTO `transactions` (`txn_id`, `time`, `from_acc`, `to_acc`, `from_prev_balance`, `to_prev_balance`, `amount`, `method`) VALUES ('', CURRENT_TIMESTAMP, '$df_acc', '$ct_acc', '$df_amnt', '$ct_amnt', '$amnt_tr', 'TBA')";
-    $txn_result=mysqli_query($con, $txn_sql);}
-    echo "<script>alert('Transaction successful'); location.href='transfer';</script>";
-}
+
 
 ?>
 
@@ -262,7 +217,7 @@ if(isset($_POST['btn-tbu'])){
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                        <h5 class="card-title text-uppercase text-black mb-0 text-lg">Transfer Between Account</h5>
+                        <h5 class="card-title text-uppercase text-black mb-0 text-lg">Vehicle Loans</h5>
                         <svg version="1.1" id="tba-transfer" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 118 38.6" enable-background="new 0 0 118 38.6" xml:space="preserve">
                     <path fill-rule="evenodd" clip-rule="evenodd" fill="black" d="M59.6,21.9c0.1-0.5,0.7-0.9,1.2-0.7l10.4,2
                         c0.3,0.1,0.5,0.3,0.6,0.5c0.1,0.2,0.2,0.5,0.1,0.8l-3.4,10c-0.1,0.5-0.7,0.9-1.2,0.7c-0.5-0.1-0.9-0.7-0.7-1.2l2.6-7.6L48.1,38.6
@@ -289,7 +244,7 @@ if(isset($_POST['btn-tbu'])){
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-black mb-0 text-lg">Transfer Between Users</h5>
+                      <h5 class="card-title text-uppercase text-black mb-0 text-lg">Home Loans</h5>
                         
 <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="tba-transfer" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
@@ -323,9 +278,6 @@ if(isset($_POST['btn-tbu'])){
 	c0.5,0.1,1.1-0.2,1.2-0.6c0.1-0.5-0.2-1-0.7-1.1l-7.8-1.4L71.7,2.3l-1-1.6L50,12l2.6-7.1C52.6,4.5,52.3,3.9,51.8,3.8z"/>
 </svg>
 
-
-
-
                       </div>
                   </div>
                 </div>
@@ -336,7 +288,7 @@ if(isset($_POST['btn-tbu'])){
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-black mb-0">NEFT</h5>
+                      <h5 class="card-title text-uppercase text-black mb-0 text-lg">Agriculture Loan</h5>
                         <img src="assets/img/icons/common/neft.svg">
                       </div>
                     </div>
@@ -350,7 +302,7 @@ if(isset($_POST['btn-tbu'])){
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-black mb-0">RTGS</h5>
+                      <h5 class="card-title text-uppercase text-black mb-0 text-lg">Gold Loan</h5>
                       <span class="h2 font-weight-bold mb-0">49,65%</span>
                     </div>
                     <div class="col-auto">
@@ -369,102 +321,116 @@ if(isset($_POST['btn-tbu'])){
     <!-- Page content -->
     <div class="container-fluid mt--3" id="pc">
       <div class="row">
-        <div class="col-xl-8 order-xl-1" id = "tba" style="display:none;">
+        <div class="col-xl-8 order-xl-1" id = "vehicle" style="display:none;">
           <div class="card bg-secondary shadow">
             <div class="card-header bg-white border-0">
               <div class="row align-items-center">
                 <div class="col-8">
-                  <h3 class="mb-0">Transfer between own accounts</h3>
+                  <h3 class="mb-0">Vehicle Loan</h3>
                 </div>
               </div>
             </div>
             <div class="card-body" >
-              <form method="post" action="transfer">
-                <h6 class="heading-small text-black mb-4">Account information</h6>
+              <form method="post" action="loan-form">
                 <div class="pl-lg-4">
                   <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-5">
                       <div class="form-group">
-                        <label class="form-control-label" for="input-username">DEBIT FROM</label>
-                        <select class="form-control text-black" name="df-tba" id="df-tba">
-                           <?php while($acc_row = mysqli_fetch_assoc($acc_result)) { $accno= $acc_row['acc_no'];
-                           echo "<option value='$accno' class=''>$accno</option>";}?>
-                          </select>
+                        <label class="form-control-label" for="input-username">First Name</label>
+                        <input id="fn-vehicle" name="fn-vehicle" class="form-control form-control-alternative" placeholder="Enter First Name" type="text" required>
                       </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-5">
                       <div class="form-group">
-                        <label class="form-control-label" for="input-email">CREDIT TO</label>
-                        <select class="form-control text-black" name="ct-tba" id="ct-tba">
-                           <?php mysqli_data_seek($acc_result, 0); while($acc_row = mysqli_fetch_assoc($acc_result)) { $accno= $acc_row['acc_no']; 
-                           echo "<option value='$accno' class=''>$accno</option>";}?>
-                          </select>
+                        <label class="form-control-label" for="input-username">Last Name</label>
+                        <input id="ln-vehicle" name="ln-vehicle" class="form-control form-control-alternative" placeholder="Enter Last Name" type="text" required>
                       </div>
                     </div>
                   </div>
                 </div>
-                <hr class="my-4" />
-                <!-- Address -->
-                <h6 class="heading-small text-black mb-4">Amount</h6>
-                <div class="pl-lg-4">
+                  <div class="pl-lg-4">
                   <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-lg-5">
                       <div class="form-group">
-                        <input id="amount-tba" name="amount-tba" class="form-control form-control-alternative" placeholder="Enter Amount" type="text">
+                        <label class="form-control-label" for="input-username">Email</label>
+                        <input id="email-vehicle" name="email-vehicle" class="form-control form-control-alternative" placeholder="Enter Email" type="text" required>
+                      </div>
+                    </div>
+                    <div class="col-lg-5">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-username">Mobile No.</label>
+                        <input id="mn-vehicle" name="mn-vehicle" class="form-control form-control-alternative" placeholder="Enter Mobile NO." type="text" required>
                       </div>
                     </div>
                   </div>
-                    <button class="btn btn-primary" id="btn-tba" name="btn-tba" type="submit" value="1">Make Transaction</button>
                 </div>
+                <div class="pl-lg-4">
+                  <div class="row">
+                    <div class="col-lg-5">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-username">Type</label>
+                        <select class="form-control text-black" name="type-vehicle" id="df-tbu">
+                          <option value="Two Wheeler Loan">Two Wheeler Loan</option>
+                          <option value="Car Loan">Car Loan</option>
+                          <option value="Agricultural Vehicle Loan">Agricultural vehicle Loan</option>
+                          </select>
+                      </div>
+                  </div>
+                </div>
+                  </div>
+                  <div class="pl-lg-4" style="align-content: center">
+            <button class="btn btn-primary" id="btn-vehicle" name="btn-vehicle" type="submit" value="1">Submit Application</button>
+                  </div>
               </form>
             </div>
           </div>
         </div>
-          
-    <div class="col-xl-8 order-xl-1" id = "tbu" style="display:none;">
+        <div class="col-xl-8 order-xl-1" id = "home" style="display:none;">
           <div class="card bg-secondary shadow">
             <div class="card-header bg-white border-0">
               <div class="row align-items-center">
                 <div class="col-8">
-                  <h3 class="mb-0">Transfer between Users</h3>
+                  <h3 class="mb-0">Home Loan</h3>
                 </div>
               </div>
             </div>
             <div class="card-body" >
-              <form method="post" action="transfer">
-                <h6 class="heading-small text-black mb-4">Account information</h6>
-                <div class="pl-lg-4">
+              <form method="post" action="loan-form">
+                  <div class="pl-lg-4">
                   <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-5">
                       <div class="form-group">
-                        <label class="form-control-label" for="input-username">DEBIT FROM</label>
-                        <select class="form-control text-black" name="df-tbu" id="df-tbu">
-                           <?php mysqli_data_seek($acc_result, 0); while($acc_row = mysqli_fetch_assoc($acc_result)) { $accno= $acc_row['acc_no'];
-                           echo "<option value='$accno' class=''>$accno</option>";}?>
-                          </select>
+                        <label class="form-control-label" for="input-username">First Name</label>
+                        <input id="fn-home" name="fn-home" class="form-control form-control-alternative" placeholder="Enter First Name" type="text" required>
                       </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-5">
                       <div class="form-group">
-                        <label class="form-control-label" for="input-email">CREDIT TO</label>
-                        <input type="text" id="ct-tbu" name="ct-tbu" class="form-control form-control-alternative" placeholder="Enter the account no. of receiver">
+                        <label class="form-control-label" for="input-username">Last Name</label>
+                        <input id="ln-home" name="ln-home" class="form-control form-control-alternative" placeholder="Enter Last Name" type="text" required>
                       </div>
                     </div>
                   </div>
                 </div>
-                <hr class="my-4" />
-                <!-- Address -->
-                <h6 class="heading-small text-black mb-4">Amount</h6>
-                <div class="pl-lg-4">
+                  <div class="pl-lg-4">
                   <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-lg-5">
                       <div class="form-group">
-                        <input id="amount-tbu" name="amount-tbu" class="form-control form-control-alternative" placeholder="Enter Amount" type="text">
+                        <label class="form-control-label" for="input-username">Email</label>
+                        <input id="email-home" name="email-home" class="form-control form-control-alternative" placeholder="Enter Email" type="text" required>
+                      </div>
+                    </div>
+                    <div class="col-lg-5">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-username">Mobile No.</label>
+                        <input id="mn-home" name="mn-home" class="form-control form-control-alternative" placeholder="Enter Mobile No." type="text" required>
                       </div>
                     </div>
                   </div>
-                    <button class="btn btn-primary" id="btn-tbu" name="btn-tbu" type="submit">Make Transaction</button>
                 </div>
+                  <div class="pl-lg-4" style="align-content: center">
+            <button class="btn btn-primary" id="btn-home" name="btn-home" type="submit" value="1">Submit Application</button>
+                  </div>
               </form>
             </div>
           </div>
@@ -488,13 +454,13 @@ if(isset($_POST['btn-tbu'])){
   <script src="./assets/js/argon.js?v=1.0.0"></script>
 <script>
    $('#show').click(function(){
-                    $("#tba").toggle();
-                    $("#tbu").hide();
+                    $("#vehicle").toggle();
+                    $("#home").hide();
                     
                     });
     $('#show2').click(function(){
-                    $("#tbu").toggle();
-                    $("#tba").hide();
+                    $("#home").toggle();
+                    $("#vehicle").hide();
 
                     });
     </script>

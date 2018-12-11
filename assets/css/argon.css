@@ -2256,7 +2256,18 @@ pre code
         border: 0;
     }
 }
+.chatbot{
+    display: none;
+    background-color: #eeeeee;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    z-index: -1;
+    position:relative;
+    height:50% !important;
 
+
+}
 @media (max-width: 767.98px)
 {
     .table-responsive-md
@@ -2379,13 +2390,12 @@ pre code
 .form-control::placeholder
 {
     opacity: 1; 
-    color: #adb5bd;
+    color: black;
 }
 .form-control:disabled,
 .form-control[readonly]
 {
     opacity: 1; 
-    background-color: #e9ecef;
 }
 
 select.form-control:focus::-ms-value
@@ -2977,6 +2987,14 @@ fieldset:disabled a.btn
     border-color: #5e72e4;
     background-color: #5e72e4;
     box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+.btn-transparent
+{
+    color: black;
+    border-color: transparent;
+    background-color: transparent;
+    cursor: pointer;
 }
 .btn-primary:hover
 {
